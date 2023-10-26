@@ -9,10 +9,11 @@ RUN apt-get update && apt-get install -y ca-certificates curl gnupg lsb-release 
 
 
 # Install MongoDB
-RUN apt-get install -y gnupg curl && curl -fsSL https://pgp.mongodb.com/server-7.0.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-server-7.0.gpg && \
-    echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu $(lsb_release -cs)/mongodb-org/7.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-7.0.list && \
-    apt-get update && apt-get install -y mongodb-org jq && \
-    mkdir -p /data/db && chown -R mongodb:mongodb /data/db
+RUN apt-get update && apt-get install -y gnupg curl
+RUN curl -fsSL https://pgp.mongodb.com/server-7.0.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-server-7.0.gpg
+RUN echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu $(lsb_release -cs)/mongodb-org/7.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-7.0.list
+RUN apt-get update && apt-get install -y mongodb-org jq
+RUN mkdir -p /data/db && chown -R mongodb:mongodb /data/db
 
 # Setup our app
 WORKDIR /app
