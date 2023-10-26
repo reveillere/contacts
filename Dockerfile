@@ -1,29 +1,28 @@
-# Utiliser une image de base Debian
-FROM debian:buster-slim
+# Use Ubuntu 22.04 as base image
+FROM ubuntu:22.04
 
-# Mettre à jour les paquets et installer les dépendances nécessaires
-RUN apt-get update && apt-get install -y wget gnupg
+# Install NodeJS
+RUN apt-get update && apt-get install -y ca-certificates curl gnupg lsb-release && \
+    curl -sSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor -o /etc/apt/trusted.gpg.d/nodesource.gpg && \
+    NODE_MAJOR=20 && echo "deb [signed-by=/etc/apt/trusted.gpg.d/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/nodesource.list && \
+    apt-get update && apt-get install -y nodejs
 
-# Installer Node.js
-RUN wget -qO- https://deb.nodesource.com/setup_16.x | bash - && \
-    apt-get install -y nodejs
 
-# Installer MongoDB
-RUN wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add - && \
-    echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/4.4 main" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list && \
-    apt-get update && apt-get install -y mongodb-org
+# Install MongoDB
+RUN apt-get install -y gnupg curl && curl -fsSL https://pgp.mongodb.com/server-7.0.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-server-7.0.gpg && \
+    echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu $(lsb_release -cs)/mongodb-org/7.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-7.0.list && \
+    apt-get update && apt-get install -y mongodb-org && \
+    mkdir -p /data/db && chown -R mongodb:mongodb /data/db
 
-# Créer un dossier pour la base de données MongoDB
-RUN mkdir -p /data/db
-
-# Configurer l'environnement de travail pour Node.js
+# Setup our app
 WORKDIR /app
 COPY package.json .
 RUN npm install
 COPY . .
 
-# Exposer les ports pour Node.js et MongoDB
 EXPOSE 80 27017
 
-# Commande pour démarrer MongoDB et Node.js (à adapter selon vos besoins)
-CMD mongod --fork --logpath /var/log/mongod.log && npm run dev
+# Use a script to start mongod and node
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+CMD ["/start.sh"]
