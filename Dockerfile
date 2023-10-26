@@ -2,10 +2,13 @@
 FROM ubuntu:22.04
 
 # Install NodeJS
-RUN apt-get update && apt-get install -y ca-certificates curl gnupg lsb-release && \
-    curl -sSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor -o /etc/apt/trusted.gpg.d/nodesource.gpg && \
-    NODE_MAJOR=20 && echo "deb [signed-by=/etc/apt/trusted.gpg.d/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/nodesource.list && \
-    apt-get update && apt-get install -y nodejs
+# Update and install required packages
+RUN apt-get update && apt-get install -y ca-certificates curl gnupg lsb-release
+RUN curl -sSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor -o /etc/apt/trusted.gpg.d/nodesource.gpg
+RUN NODE_MAJOR=20 && \
+    echo "deb [signed-by=/etc/apt/trusted.gpg.d/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/nodesource.list
+RUN apt-get update && apt-get install -y nodejs
+
 
 
 # Install MongoDB
