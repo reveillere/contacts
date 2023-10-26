@@ -1,12 +1,13 @@
 import express from 'express';
+import morgan from 'morgan'
+import router from './routes.js';
 
 const app = express();
 const PORT = 80;
 
-app.get('/', (req, res) => {
-    res.send('Salut tout le monde avec Express, cool !');
-});
+app.use(morgan('dev'));
+app.use(router);
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+app.listen(PORT, async () => {
+    console.log(`Server is running ...`);
+}); 
